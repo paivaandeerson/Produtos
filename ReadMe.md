@@ -11,7 +11,7 @@ Este documento provê uma visão geral da implementação facilitando o entendim
 
 ## <a name="R">Run App</a>
 
-1. Executar o script ``InitDB.sql`` presente neste diretório  no SqlServer antes da execução do App, garanta que a ``ConnectionString`` em ``src\Anderson.Produtos.WebAPI\appSettings.Development.json`` está apontando corretamente para Base de Dados de sua escolha.
+1. Executar o script ``InitDB.sql`` presente neste diretório  no SqlServer antes da execução do App, garanta que a ``ConnectionString`` em ``src\Anderson.Produtos.WebAPI\appSettings.json`` está apontando corretamente para Base de Dados de sua escolha.
 2. Para rodar o app é necessário ter o VS2019 16.8.2 ou VSCode + CLI
 3. Em ambiente de desenvolvimento utilizei ``npm 6.x`` e ``node 14.x`` (versões mais recentes podem apresentar erros)
 
