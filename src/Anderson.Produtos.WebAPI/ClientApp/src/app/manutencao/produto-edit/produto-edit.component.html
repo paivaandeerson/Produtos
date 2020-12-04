@@ -1,0 +1,31 @@
+<div class="container">
+    <h3>
+        Manter Produto
+    </h3>
+    <div><img [src]="produto.imagemPath" width="200" height="200" /></div>
+    <hr>
+    <form>
+        <input type="hidden" for="id" [value]="produto.id" name="id">
+        <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" class="form-control" for="nome" [value]="produto.nome" (blur)="nomeChange($event)" name="nome"/>
+        </div>
+        <div class="form-group">
+           <label for="valor">Valor</label>
+            <input type="text" class="form-control" for="valor" [value]="produto.valor" (blur)="valorChange($event)"name="valor"/>
+        </div>
+        <div class="form-group">
+            <label for="imagem">Alterar Imagem</label>
+            <input type="file" class="form-control" for="imagemArquivo" [value]="produto.imagemArquivo" (blur)="fileChangeEvent($event)" name="imagemArquivo"/>
+        </div>
+    </form>
+    <button class="btn btn-primary" (click)="save()"> 
+        Salvar
+    </button> 
+    <button class="btn btn-danger" (click)="remove()">
+        Remover
+    </button>        
+    <button class="btn" (click)="cancel()">
+        Cancelar
+    </button>
+</div>

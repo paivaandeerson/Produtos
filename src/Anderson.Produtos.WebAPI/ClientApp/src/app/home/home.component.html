@@ -1,0 +1,16 @@
+<h1>Produtos</h1>
+<a routerLink="/produtos/create">+ Criar </a>
+<div class="produtos-container"> 
+  <table *ngIf="Produtos && Produtos.length > 0">
+    <tbody>
+      <tr *ngFor="let produto of Produtos; let i = index">
+        <div>{{produto.nome}}</div>
+        <!-- infelizmete imagens locais apresentam problemas de segurança no chrome =/ -->
+        <div><img [src]="sanitizeImageUrl(produto.imagemPath)" width="200" height="200" /></div>
+        <div>{{produto.valor.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}}</div>
+        <div><a [routerLink]="['produtos/edit/'+produto.id]"> Editar </a></div>
+        <hr />
+      </tr>
+    </tbody>
+  </table>
+</div>
