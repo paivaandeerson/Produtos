@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Anderson.Produtos.WebAPI
 {
@@ -20,13 +21,21 @@ namespace Anderson.Produtos.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
+            
             services.AddControllersWithViews();
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
             });
-            ProdutoDependency.Configure(services, Configuration.GetConnectionString("ProdutoDB"));
+
+            ProdutoDependency.Configure(services, Configuration);
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProductApi", Version = "v1" });
+            });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -37,7 +46,7 @@ namespace Anderson.Produtos.WebAPI
             }
             else
             {
-                app.UseExceptionHandler("/Error");                
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
 
@@ -48,8 +57,15 @@ namespace Anderson.Produtos.WebAPI
                 app.UseSpaStaticFiles();
             }
 
-            app.UseRouting();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {                
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product");
+                c.RoutePrefix = "api/doc"; //Configures swagger to load at application root
+            });
 
+
+            app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

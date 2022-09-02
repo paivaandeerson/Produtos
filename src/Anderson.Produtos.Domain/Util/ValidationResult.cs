@@ -7,11 +7,11 @@ namespace Anderson.Produtos.Domain
 {
     public sealed class ValidationResult : IValidationResult
     {
-        public ICollection<string> Erros { get; } = new List<string>();
-
+        public ICollection<string> Errors { get; } = new List<string>();
+            
         public void AddError(string erro)
         {
-            Erros.Add(erro);
+            Errors.Add(erro);
         }
     }
 
@@ -23,9 +23,9 @@ namespace Anderson.Produtos.Domain
             public string Error { get;  init; }
         }
 
-        public static string ToFormattedString(this ICollection<string> erros)
+        public static object ToResponseModel(this ICollection<string> erros)
         {
-            return JsonSerializer.Serialize(new Result { Error = erros.FirstOrDefault() } );
+            return new Result { Error = erros.FirstOrDefault() };
         }
     }
 }

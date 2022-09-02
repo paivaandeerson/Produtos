@@ -5,36 +5,56 @@ using Anderson.Produtos.Domain.Repository;
 using Anderson.Produtos.Domain.Repository.EFImplementations;
 using Anderson.Produtos.Domain.Repository.FSImplementations;
 using AutoMapper;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Anderson.Produtos.Domain.Util
 {
     public static class ProdutoDependency
     {
-        public static void Configure(IServiceCollection services, string connectionString)
+        public static void Configure(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ProdutoContext>(options =>
+            var mapperConfiguration = new MapperConfiguration(cfg =>
             {
-                if (!string.IsNullOrEmpty(connectionString))
-                {
-                    options.UseSqlServer(connectionString);
-                    return;
-                }
-                options.UseInMemoryDatabase("InMemory");
+                cfg.CreateMap<ProductViewModel, ProductDomainModel>();
+                cfg.CreateMap<ProductDomainModel, ProductViewModel>();
             });
 
-            var configuration = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<ProdutoViewModel, ProdutoDomainModel>();
-                cfg.CreateMap<ProdutoDomainModel, ProdutoViewModel>();
-            });
-
-            services.AddSingleton(typeof(IMapper), new Mapper(configuration));
+            services.AddSingleton(typeof(IMapper), new Mapper(mapperConfiguration));
             services.AddScoped<IValidationResult, ValidationResult>();
-            services.AddTransient<IProdutosAppService, ProdutosAppService>();
-            services.AddTransient<IProdutoFileStorage, ProdutoFileSystem>();
-            services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            services.AddTransient<IProductAppService, ProductAppService>();
+            services.AddTransient<IProductFileStorage, ProdutoFileSystem>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+
+
+            var connectionString = configuration.GetConnectionString("ProductDB");
+
+            if (configuration.GetSection("Environment")?.Value == "NarrowIntegratedTest")
+            {
+                string id = string.Format("{0}.db", Guid.NewGuid().ToString());
+
+                var builder = new SqliteConnectionStringBuilder()
+                {
+                    DataSource = id,
+                    Mode = SqliteOpenMode.Memory,
+                    Cache = SqliteCacheMode.Shared
+                };
+
+                var connection = new SqliteConnection(builder.ConnectionString);
+                connection.Open();
+                connection.EnableExtensions(true);
+                services.AddDbContext<ProductContext>(options => options.UseSqlite(connection));
+
+                return;
+            }
+
+            services.AddDbContext<ProductContext>(options =>
+            {
+                options.UseSqlServer(connectionString);
+            });
         }
     }
 }

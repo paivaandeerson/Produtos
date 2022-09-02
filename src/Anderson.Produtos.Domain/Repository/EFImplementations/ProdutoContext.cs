@@ -2,19 +2,17 @@
 
 namespace Anderson.Produtos.Domain.Repository.EFImplementations
 {
-    internal class ProdutoContext : DbContext
+    internal class ProductContext : DbContext
     {
-        public DbSet<ProdutoDomainModel> ProdutoModels { get; set; }
-        public ProdutoContext(DbContextOptions<ProdutoContext> options) : base(options)
+        public DbSet<ProductDomainModel> Products { get; set; }
+        public ProductContext(DbContextOptions<ProductContext> options) : base(options)
         {
             Database.EnsureCreated();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            //em um projeto real eu usaria 
-            // o 'Fluent Api' Mapping pra cada entidade implementando o IEntityTypeConfiguration<TEntity>
-            //ao invés de configurar aqui
-            modelBuilder.Entity<ProdutoDomainModel>().HasKey(x=> x.Id);            
+        {            
+            // if it grow up use 'Fluent Api' Mapping             
+            modelBuilder.Entity<ProductDomainModel>().HasKey(x=> x.Id);            
         }
     }
 }

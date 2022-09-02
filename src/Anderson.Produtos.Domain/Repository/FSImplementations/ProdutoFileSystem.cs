@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.Repository.FSImplementations
 {
-    internal class ProdutoFileSystem : IProdutoFileStorage
+    internal class ProdutoFileSystem : IProductFileStorage
     {
         public const string ImagemBasePath = "C:\\Produto\\Imagens\\";//deveria buscar do appsettings
 

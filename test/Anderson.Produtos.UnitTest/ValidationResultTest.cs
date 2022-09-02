@@ -7,7 +7,7 @@ namespace Anderson.Produtos.UnitTest
     public class ValidationResultTest
     {
         [Fact]
-        public void AddMensagemErro_DeveConterErroNaLista()
+        public void AddErrorMessage_MustContainErrorInList()
         {
             // Arrange
             var target = new ValidationResult();
@@ -18,8 +18,8 @@ namespace Anderson.Produtos.UnitTest
             target.AddError(errorMessage);
 
             // Assert
-            Assert.Equal(expectedCount, target.Erros.Count);            
-            Assert.Equal(errorMessage, target.Erros.First());            
+            Assert.Equal(expectedCount, target.Errors.Count);            
+            Assert.Equal(errorMessage, target.Errors.First());            
         }
     }
 }

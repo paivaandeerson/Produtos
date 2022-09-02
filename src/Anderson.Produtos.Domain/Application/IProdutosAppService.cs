@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.Application.ViewModels
 {
-    public interface IProdutosAppService
+    public interface IProductAppService
     {
-        Task<IEnumerable<ProdutoViewModel>> GetAllAsync();
-        Task<ProdutoViewModel> GetByIdAsync(long id);
-        Task CreateAsync(ProdutoViewModel model);
-        Task UpdateAsync(ProdutoViewModel model);
+        Task<IEnumerable<ProductViewModel>> GetAllAsync();
+        Task<ProductViewModel> GetByIdAsync(long id);
+        Task CreateAsync(ProductViewModel model);
+        Task UpdateAsync(ProductViewModel model);
         Task DeleteAsync(long id);
     }
 }

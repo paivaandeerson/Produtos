@@ -6,36 +6,36 @@ using Xunit;
 
 namespace Anderson.Produtos.UnitTest
 {
-    public class ProdutoDomainModelTest
+    public class ProductDomainModelTest
     {
         private readonly IValidationResult _validationResult = Substitute.For<IValidationResult>();
 
         [Fact]
-        public void ValoresValidos_RealizarManutencao()
+        public void ValidValues_Maintain()
         {
             // Arrange
-            var target = new ProdutoDomainModel("Teste", "1234.12", "~/test.img");
+            var target = new ProductDomainModel("Teste", "1234.12", "~/test.img");
 
             // Act
-            var result = target.RealizarManutencao(new ProdutoViewModel
+            var result = target.Maintain(new ProductViewModel
             {
-                Nome = "abcd",
-                Valor = 1234.56M,
-                ImagemPath= "~/abcd",
+                Name = "abcd",
+                Value = 1234.56M,
+                ImagePath= "~/abcd",
             });
 
             // Assert
-            Assert.Equal("abcd", result.Nome);
-            Assert.Equal(1234.56M, result.Valor);
-            Assert.Equal("~/abcd", result.ImagemPath);
+            Assert.Equal("abcd", result.Name);
+            Assert.Equal(1234.56M, result.Value);
+            Assert.Equal("~/abcd", result.ImagePath);
             _validationResult.DidNotReceiveWithAnyArgs().AddError(string.Empty);
         }
 
         [Fact]
-        public void ValoresValidos_NaoDeveAddErro()
+        public void ValoresValues_NoErrors()
         {
             // Arrange
-            var target = new ProdutoDomainModel("Teste", "1234.12", "~/test.img");
+            var target = new ProductDomainModel("Teste", "1234.12", "~/test.img");
 
             // Act
             var result = target.IsValid(_validationResult);
@@ -46,12 +46,12 @@ namespace Anderson.Produtos.UnitTest
         }
 
         [Fact]
-        public void NomeVazio_DeveAddErro()
+        public void EmptyName_MustAddError()
         {
             // Arrange
-            var target = new ProdutoDomainModel("", "1234.12", "~/test.img");
+            var target = new ProductDomainModel("", "1234.12", "~/test.img");
             var expectedMessage = "Nome é obrigatório";
-            _validationResult.Erros.Returns(new[] { expectedMessage });
+            _validationResult.Errors.Returns(new[] { expectedMessage });
 
             // Act
             var result = target.IsValid(_validationResult);
@@ -62,12 +62,12 @@ namespace Anderson.Produtos.UnitTest
         }
 
         [Fact]
-        public void ValorVazio_DeveAddErro()
+        public void EmptyValue_MustAddError()
         {
             // Arrange
-            var target = new ProdutoDomainModel("Teste", "", "~/test.img");
+            var target = new ProductDomainModel("Teste", "", "~/test.img");
             var expectedMessage = "Valor é obrigatório";
-            _validationResult.Erros.Returns(new[] { expectedMessage });
+            _validationResult.Errors.Returns(new[] { expectedMessage });
 
             // Act
             var result = target.IsValid(_validationResult);
@@ -78,12 +78,12 @@ namespace Anderson.Produtos.UnitTest
         }
 
         [Fact]
-        public void ValorInvalido_DeveAddErro()
+        public void InvalidValue_MustAddError()
         {
             // Arrange
-            var target = new ProdutoDomainModel("Teste", "abcde", "~/test.img");
+            var target = new ProductDomainModel("Teste", "abcde", "~/test.img");
             var expectedMessage = "Valor é obrigatório";
-            _validationResult.Erros.Returns(new[] { expectedMessage });
+            _validationResult.Errors.Returns(new[] { expectedMessage });
 
             // Act
             var result = target.IsValid(_validationResult);

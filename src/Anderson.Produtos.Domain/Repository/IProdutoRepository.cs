@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.Repository
 {
-    internal interface IProdutoRepository
+    internal interface IProductRepository
     {
         ITransaction BeginTransacion();
-        Task<IEnumerable<ProdutoDomainModel>> GetAllAsync();
-        Task<ProdutoDomainModel> GetByIdAsync(long id);
-        Task CreateAsync(ProdutoDomainModel model);
-        Task UpdateAsync(ProdutoDomainModel model);
+        Task<ProductDomainModel[]> GetAllAsync();
+        Task<ProductDomainModel> GetByIdAsync(long id);
+        Task CreateAsync(ProductDomainModel model);
+        Task UpdateAsync(ProductDomainModel model);
         Task DeleteAsync(long id);
     }
 }

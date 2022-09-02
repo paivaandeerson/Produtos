@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.Repository.EFImplementations
 {
-    public class ProdutoTransaction : ITransaction
+    public class ProductTransaction : ITransaction, IDisposable
     {
         private readonly IDbContextTransaction _transaction;
 
-        public ProdutoTransaction(IDbContextTransaction transaction)
+        public ProductTransaction(IDbContextTransaction transaction)
         {
             _transaction = transaction;
         }

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.Repository
 {
-    public interface IProdutoFileStorage
+    public interface IProductFileStorage
     {
         Task<string> InsertAsync(Stream imagem);
     }

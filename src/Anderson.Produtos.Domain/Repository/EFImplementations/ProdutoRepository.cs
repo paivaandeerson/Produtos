@@ -1,52 +1,50 @@
 ﻿using Anderson.Produtos.Domain.Repository;
 using Anderson.Produtos.Domain.Repository.EFImplementations;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Anderson.Produtos.Domain.EFImplementations.Repository
 {
-    //Assincronismo pq não queremos IO Blocking no server
-    internal class ProdutoRepository : IProdutoRepository
+    /// <summary>
+    /// Async in all IO operations to avoid IO Blocking
+    /// </summary>
+    internal class ProductRepository : IProductRepository
     {
-        private readonly ProdutoContext _produtoContext;
+        private readonly ProductContext _produtoContext;
 
-        public ProdutoRepository(ProdutoContext produtoContext)
+        public ProductRepository(ProductContext produtoContext)
         {
             _produtoContext = produtoContext;
         }
 
-        public ITransaction BeginTransacion() => new ProdutoTransaction(_produtoContext.Database.BeginTransaction());
+        public ITransaction BeginTransacion() => new ProductTransaction(_produtoContext.Database.BeginTransaction());
 
-        //deveria ser paginado e cacheado
-        public async Task<IEnumerable<ProdutoDomainModel>> GetAllAsync() => await _produtoContext
-                .ProdutoModels
+        //this result should be paged and cached
+        public Task<ProductDomainModel[]> GetAllAsync() => _produtoContext
+                .Products
                 .AsNoTrackingWithIdentityResolution()
-                .ToArrayAsync()
-                .ConfigureAwait(false);
+                .ToArrayAsync();
 
-        public async Task<ProdutoDomainModel> GetByIdAsync(long id) => await _produtoContext
-            .ProdutoModels
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x=>x.Id == id)//Garante que não há id duplicado!
+        public async Task<ProductDomainModel> GetByIdAsync(long id) => await _produtoContext
+            .Products
+            .AsNoTrackingWithIdentityResolution()
+            .SingleOrDefaultAsync(x => x.Id == id)//No duplication, this linq extension guarantees
             .ConfigureAwait(false);
 
-        public async Task CreateAsync(ProdutoDomainModel model)
+        public async Task CreateAsync(ProductDomainModel model)
         {
-            await _produtoContext.ProdutoModels.AddAsync(model);
+            await _produtoContext.Products.AddAsync(model);
             await _produtoContext.SaveChangesAsync();
-            _produtoContext.Entry(model).State = EntityState.Detached; //por conta dos testes de criação e alteração
+            //_produtoContext.Entry(model).State = EntityState.Detached; //Due automated tests
         }
 
-        public async Task UpdateAsync(ProdutoDomainModel model)
+        public Task UpdateAsync(ProductDomainModel model)
         {
             _produtoContext.Entry(model).State = EntityState.Modified;
-
-            await _produtoContext
-                .SaveChangesAsync()
-                .ConfigureAwait(false);
+            return _produtoContext.SaveChangesAsync();
         }
-        
+
         public async Task DeleteAsync(long id)
         {
             _produtoContext.Remove(await GetByIdAsync(id));

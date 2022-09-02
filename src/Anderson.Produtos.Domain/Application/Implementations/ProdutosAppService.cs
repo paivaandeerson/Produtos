@@ -10,104 +10,92 @@ using System.Threading.Tasks;
 [assembly: InternalsVisibleTo("Anderson.Produtos.IntegrationTest")]
 namespace Anderson.Produtos.Domain.Application.Implementations
 {
-    internal sealed class ProdutosAppService : IProdutosAppService
+    internal sealed class ProductAppService : IProductAppService
     {
-        private const string ProdutoNaoEncontrado = "Produto não encontrado";
-        private const string AlgoInesperadoAconteceu = "Algo inesperado aconteceu";
-        private const string ImagemEObrigatorio = "Imagem é obrigatório";
+        private const string ProductNotFound = "Produto não encontrado";
+        private const string UnexpectedError = "Algo inesperado aconteceu";
 
-        private readonly IProdutoRepository _produtoRepository;
-        private readonly IProdutoFileStorage _produtoFileStorage;
+        private readonly IProductRepository _productRepository;
+        private readonly IProductFileStorage _productFileStorage;
         private readonly IValidationResult _validationResult;
         private readonly IMapper _mapper;
 
-        public ProdutosAppService(IProdutoRepository produtoRepository,
-            IProdutoFileStorage produtoFileStorage,
+        public ProductAppService(IProductRepository productRepository,
+            IProductFileStorage productFileStorage,
             IValidationResult validationResult,
             IMapper mapper)
         {
-            _produtoRepository = produtoRepository;
-            _produtoFileStorage = produtoFileStorage;
+            _productRepository = productRepository;
+            _productFileStorage = productFileStorage;
             _mapper = mapper;
             _validationResult = validationResult;
         }
 
-        public async Task<IEnumerable<ProdutoViewModel>> GetAllAsync()
+        public async Task<IEnumerable<ProductViewModel>> GetAllAsync()
         {
-            return (await _produtoRepository.GetAllAsync())
-                .Select(x => _mapper.Map<ProdutoViewModel>(x));
+            return (await _productRepository.GetAllAsync())
+                .Select(x => _mapper.Map<ProductViewModel>(x));
         }
 
-        public async Task<ProdutoViewModel> GetByIdAsync(long id)
+        public async Task<ProductViewModel> GetByIdAsync(long id)
         {
-            var produto = await _produtoRepository.GetByIdAsync(id);
-            if (produto is null)
-            {
-                _validationResult.AddError(ProdutoNaoEncontrado);
-                return null;
-            }
-
-            return _mapper.Map<ProdutoViewModel>(produto);
+            return _mapper.Map<ProductViewModel>(await _productRepository.GetByIdAsync(id));
         }
 
-        public async Task CreateAsync(ProdutoViewModel viewModel)
+        public async Task CreateAsync(ProductViewModel viewModel)
         {
-            var domainModel = _mapper.Map<ProdutoDomainModel>(viewModel);
+            var domainModel = _mapper.Map<ProductDomainModel>(viewModel);
 
             if (!domainModel.IsValid(_validationResult))
                 return;
 
-            if (viewModel?.ImagemArquivo is null)
-            {
-                _validationResult.AddError(ImagemEObrigatorio);
-                return;
-            }
-
-            using (var transaction = _produtoRepository.BeginTransacion())
+            using (var transaction = _productRepository.BeginTransacion())
             {
                 try
                 {
-                    domainModel.ImagemPath = await _produtoFileStorage.InsertAsync(viewModel.ImagemArquivo.OpenReadStream());
-                    await _produtoRepository.CreateAsync(domainModel);
+                    //domainModel.ImagePath = await _productFileStorage.InsertAsync(viewModel.ImagePath.OpenReadStream());
+                    await _productRepository.CreateAsync(domainModel);
                     await transaction.CommitAsync();
+
+                    viewModel.Id = domainModel.Id;
                 }
                 catch (System.Exception e)
                 {
-                    _validationResult.Erros.Add(AlgoInesperadoAconteceu);
+                    _validationResult.Errors.Add(UnexpectedError);
                     await transaction.RollbackAsync();
                 }
             }
         }
 
-        public async Task UpdateAsync(ProdutoViewModel viewModel)
+        public async Task UpdateAsync(ProductViewModel viewModel)
         {
-            var domainModel = await _produtoRepository.GetByIdAsync(viewModel.Id);
+            var domainModel = await _productRepository.GetByIdAsync(viewModel.Id);
             if (domainModel is null)
             {
-                _validationResult.AddError(ProdutoNaoEncontrado);
+                _validationResult.AddError(ProductNotFound);
                 return;
             }
 
-            domainModel = domainModel.RealizarManutencao(viewModel);
+            domainModel = domainModel.Maintain(viewModel);
 
             if (!domainModel.IsValid(_validationResult))
                 return;
 
-            using (var transaction = _produtoRepository.BeginTransacion())
+            using (var transaction = _productRepository.BeginTransacion())
             {
                 try
                 {
-                    if (viewModel?.ImagemArquivo is not null)
+                    if (viewModel?.ImageStream is not null)
                     {
-                        domainModel.ImagemPath = await _produtoFileStorage.InsertAsync(viewModel.ImagemArquivo.OpenReadStream());
+                        domainModel.ImagePath = await _productFileStorage.InsertAsync(viewModel.ImageStream.OpenReadStream());
                     }
 
-                    await _produtoRepository.UpdateAsync(domainModel);
+                    await _productRepository.UpdateAsync(domainModel);
                     await transaction.CommitAsync();
                 }
                 catch (System.Exception e)
                 {
-                    _validationResult.Erros.Add(AlgoInesperadoAconteceu);
+                    _validationResult.Errors.Add(UnexpectedError);
                     await transaction.RollbackAsync();
                 }
             }
@@ -115,24 +103,24 @@ namespace Anderson.Produtos.Domain.Application.Implementations
 
         public async Task DeleteAsync(long id)
         {
-            var produto = await _produtoRepository.GetByIdAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
 
-            if (produto is null)
+            if (product is null)
             {
-                _validationResult.AddError(ProdutoNaoEncontrado);
+                _validationResult.AddError(ProductNotFound);
                 return;
             }
 
-            using (var transaction = _produtoRepository.BeginTransacion())
+            using (var transaction = _productRepository.BeginTransacion())
             {
                 try
                 {
-                    await _produtoRepository.DeleteAsync(id);
+                    await _productRepository.DeleteAsync(id);
                     await transaction.CommitAsync();
                 }
                 catch (System.Exception e)
                 {
-                    _validationResult.Erros.Add(AlgoInesperadoAconteceu);
+                    _validationResult.Errors.Add(UnexpectedError);
                     await transaction.RollbackAsync();
                 }
             }

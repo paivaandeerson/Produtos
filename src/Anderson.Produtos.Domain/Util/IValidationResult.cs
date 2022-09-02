@@ -7,7 +7,7 @@
     /// </summary>
     public interface IValidationResult
     {
-        ICollection<string> Erros { get; }
+        ICollection<string> Errors { get; }
         void AddError(string erro);
     }
 }

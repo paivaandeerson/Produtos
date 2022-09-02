@@ -16,6 +16,7 @@ export class ProdutoService {
     private baseUrl: string) {
   }
 
+  //TODO: change the way the post was implemented to FromBody
   create(produto: Produto): Observable<Produto> {
     console.log('this.baseUrl', `${this.baseUrl}api/Produtos`);
     const formData = new FormData();

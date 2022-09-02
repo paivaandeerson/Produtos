@@ -7,54 +7,58 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Anderson.Produtos.UnitTest")]
 namespace Anderson.Produtos.Domain
 {
-    internal record ProdutoDomainModel : IBaseModel
+    internal record ProductDomainModel : IBaseModel
     {
-        private const string NomeEObrigatorio = "Nome é obrigatório"; //const p não recriar strings a cada vez que o método rodar
-        private const string ValorEObrigatorio = "Valor é obrigatório";
-
         public long Id { get; init; }
-        public string Nome { get; protected set; }
-        public decimal Valor { get; protected set; }
-        public string ImagemPath { get; set; } //não é boa prática guardar imagem em DB
+        public string Name { get; protected set; }
+        public decimal Value { get; protected set; }
+        public string ImagePath { get; set; } //Don't persist images
 
-        public ProdutoDomainModel(string nome,
+        public ProductDomainModel(string nome,
             string valor, 
             string imagemPath)
         {
-            Nome = nome;
-            ImagemPath = imagemPath;
+            Name = nome;
+            ImagePath = imagemPath;
             if (decimal.TryParse(valor, out var convertedValor))
             {
-                Valor = convertedValor;
+                Value = convertedValor;
             };
         }
 
         //to EF
-        protected ProdutoDomainModel()
+        protected ProductDomainModel()
         {
         }
         
-        //DDD: Toda classe deve ter um motivo para ser alterada
-        public ProdutoDomainModel RealizarManutencao(ProdutoViewModel viewModel)
+        //DDD: Every class should have a reason why it's being changed
+        public ProductDomainModel Maintain(ProductViewModel viewModel)
         {
             return this with 
             { 
-                Nome = viewModel.Nome, 
-                ImagemPath = viewModel.ImagemPath ?? ImagemPath, 
-                Valor = viewModel.Valor 
+                Name = viewModel.Name, 
+                ImagePath = viewModel.ImagePath ?? ImagePath, 
+                Value = viewModel.Value 
             };
         }
 
         public bool IsValid(IValidationResult validationResult)
         {
-            if (string.IsNullOrEmpty(Nome))
-                validationResult.AddError(NomeEObrigatorio);
+            const string NameIsRequired = "Nome é obrigatório"; 
+            const string ValueIsRequired = "Valor é obrigatório";
+            const string ImageProductIsRequired = "Imagem é obrigatório";
 
-            if (Valor is default(decimal))
-                validationResult.AddError(ValorEObrigatorio);
+            if (string.IsNullOrEmpty(Name))
+                validationResult.AddError(NameIsRequired);
+
+            if (string.IsNullOrEmpty(ImagePath))
+                validationResult.AddError(ImageProductIsRequired);
+
+            if (Value is default(decimal))
+                validationResult.AddError(ValueIsRequired);
 
 
-            return !validationResult.Erros?.Any() ?? true;
+            return !validationResult.Errors?.Any() ?? true;
         }
     }
 }
